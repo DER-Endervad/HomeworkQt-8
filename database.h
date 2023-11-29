@@ -6,6 +6,7 @@
 #include <QSqlError>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlTableModel>
 
 #define POSTGRE_DRIVER "QPSQL"
 #define DB_NAME "MyDB"
@@ -44,24 +45,24 @@ public:
     void AddDataBase(QString driver, QString nameDB = "");
     void DisconnectFromDataBase(QString nameDb = "");
     void RequestToDB(QString request);
-    void ReadAnswerFromDB( int answerType );
+    void ReadAnswerFromDB(QString answerType);
     QSqlError GetLastError(void);
-    void ConnectToDataBase(QVector<QString> dataForConnect);
+    void ConnectToDataBase(QVector<QString> dataForConnect, QString nameDB);
     void ClearWidget();
 
 signals:
 
-   void sig_SendDataFromDB(QTableWidget *tableWg, int typeR);
+   void sig_SendDataFromDB(QTableView *tableWg, int typeR);
    void sig_SendStatusConnection(bool);
-   void sig_SendStatusRequest(QSqlError err);
+   void sig_SendStatusRequest(QString request);
 
 
 private:
 
     QSqlDatabase* dataBase;
     QSqlQuery* simpleQuery;
-    QTableWidget* tableWidget;
-
+    QSqlTableModel* modelDataBase;
+    QSqlQueryModel* queryModel;
 };
 
 #endif // DATABASE_H

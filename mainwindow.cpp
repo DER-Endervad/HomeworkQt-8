@@ -73,14 +73,13 @@ void MainWindow::on_act_connect_triggered()
      * "Отключено" мы осуществляем подключение, если "Подключено" то
      * отключаемся
     */
-
     if(ui->lb_statusConnect->text() == "Отключено"){
 
        ui->lb_statusConnect->setText("Подключение");
        ui->lb_statusConnect->setStyleSheet("color : black");
 
 
-       auto conn = [&]{dataBase->ConnectToDataBase(dataForConnect);};
+       auto conn = [&]{dataBase->ConnectToDataBase(dataForConnect, DB_NAME);};
        QtConcurrent::run(conn); //! Тут почему-то ругается.
     }
     else{
@@ -123,7 +122,7 @@ void MainWindow::on_pb_request_clicked()
  * \param widget
  * \param typeRequest
  */
-void MainWindow::ScreenDataFromDB(QTableWidget *widget, int typeRequest)
+void MainWindow::ScreenDataFromDB(QTableView *widget, int typeRequest)
 {
     ///Тут должен быть код ДЗ
     switch (typeRequest) {
@@ -164,15 +163,9 @@ void MainWindow::ReceiveStatusConnectionToDB(bool status)
 
 }
 
-void MainWindow::ReceiveStatusRequestToDB(QSqlError err)
+void MainWindow::ReceiveStatusRequestToDB(QString request)
 {
-    if(err.type() != QSqlError::NoError){
-        msg->setText(err.text());
-        msg->exec();
-    }
-    else{
-        dataBase->ReadAnswerFromDB(requestAllFilms);
-    }
+    dataBase->ReadAnswerFromDB(request);
 }
 
 

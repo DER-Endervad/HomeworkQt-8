@@ -23,9 +23,9 @@ public:
 
 
 public slots:
-    void ScreenDataFromDB(QTableWidget *widget, int typeRequest);
+    void ScreenDataFromDB(QTableView *widget, int typeRequest);
     void ReceiveStatusConnectionToDB(bool status);
-    void ReceiveStatusRequestToDB(QSqlError err);
+    void ReceiveStatusRequestToDB(QString request);
 
 private slots:
     void on_act_addData_triggered();
@@ -46,9 +46,9 @@ private:
     DataBase* dataBase;
     QMessageBox* msg;
 
-    QString request = "SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id  = fc.category_id";
-    QString requestCom = "SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id = fc.category_id WHERE c.name = 'Comedy'";
-    QString requestHor = "SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id = fc.category_id WHERE c.name = 'Horror'";
+    QString request = "All";
+    QString requestCom = "Comedy";
+    QString requestHor = "Horror";
 
 
 };

@@ -6,7 +6,6 @@ DataBase::DataBase(QObject *parent)
 
     dataBase = new QSqlDatabase();
     simpleQuery = new QSqlQuery();
-    tableWidget = new QTableWidget();
 }
 
 DataBase::~DataBase()
@@ -21,9 +20,7 @@ DataBase::~DataBase()
  */
 void DataBase::AddDataBase(QString driver, QString nameDB)
 {
-
     *dataBase = QSqlDatabase::addDatabase(driver, nameDB);
-
 }
 
 /*!
@@ -31,28 +28,31 @@ void DataBase::AddDataBase(QString driver, QString nameDB)
  * \param для удобства передаем контейнер с данными необходимыми для подключения
  * \return возвращает тип ошибки
  */
-void DataBase::ConnectToDataBase(QVector<QString> data)
+void DataBase::ConnectToDataBase(QVector<QString> data, QString nameDB)
 {
-
     dataBase->setHostName(data[hostName]);
     dataBase->setDatabaseName(data[dbName]);
     dataBase->setUserName(data[login]);
     dataBase->setPassword(data[pass]);
     dataBase->setPort(data[port].toInt());
 
+    bool status;
+    status = dataBase->open();
 
     ///Тут должен быть код ДЗ
+    if(status) {
+        modelDataBase = new QSqlTableModel(0, *dataBase);
+        queryModel = new QSqlQueryModel;
+    }
 
-
-    bool status;
-    status = dataBase->open( );
     emit sig_SendStatusConnection(status);
 
 }
 
 void DataBase::ClearWidget()
 {
-    tableWidget->clear();
+    QTableView *view_clear = new QTableView;
+    emit sig_SendDataFromDB(view_clear, requestAllFilms);
 }
 /*!
  * \brief Метод производит отключение от БД
@@ -60,10 +60,8 @@ void DataBase::ClearWidget()
  */
 void DataBase::DisconnectFromDataBase(QString nameDb)
 {
-
     *dataBase = QSqlDatabase::database(nameDb);
     dataBase->close();
-
 }
 /*!
  * \brief Метод формирует запрос к БД.
@@ -72,47 +70,29 @@ void DataBase::DisconnectFromDataBase(QString nameDb)
  */
 void DataBase::RequestToDB(QString request) {
     ///Тут должен быть код ДЗ
-    *simpleQuery = QSqlQuery(*dataBase);
-
-    QSqlError err;
-    if(simpleQuery->exec(request) == false) {
-        err = simpleQuery->lastError();
+    if(request == "All") {
+        modelDataBase->setTable("film");
+        modelDataBase->select();
+        modelDataBase->removeColumns(3,11);
+        modelDataBase->removeColumn(0);
+    } else if (request == "Comedy"){
+        queryModel->setQuery("SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id = fc.category_id WHERE c.name = 'Comedy'", *dataBase);
+    } else {
+        queryModel->setQuery("SELECT title, description FROM film f JOIN film_category fc on f.film_id = fc.film_id JOIN category c on c.category_id = fc.category_id WHERE c.name = 'Horror'", *dataBase);
     }
-    emit sig_SendStatusRequest(err);
+
+    emit sig_SendStatusRequest(request);
 }
 
-void DataBase::ReadAnswerFromDB(int requestType) {
-    switch (requestType) {
-    case requestAllFilms:
-    case requestComedy:
-    case requestHorrors:{
-
-        static int column = 2;
-        tableWidget->setRowCount(0);
-        tableWidget->setColumnCount(column);
-
-        QStringList hdrs;
-        hdrs << "Название фильма" << "Описание фильма";
-        tableWidget->setHorizontalHeaderLabels(hdrs);
-
-        int cntRows = 0;
-        while(simpleQuery->next()) {
-            tableWidget->insertRow(cntRows);
-
-            for(int i=0; i<column; ++i) {
-                QTableWidgetItem *item = new QTableWidgetItem(simpleQuery->value(i).toString());
-                tableWidget->setItem(tableWidget->rowCount() - 1, i, item);
-            }
-
-            ++cntRows;
-        }
-
-        emit sig_SendDataFromDB(tableWidget, requestAllFilms);
-        break;
-
-    }
-    default:
-        break;
+void DataBase::ReadAnswerFromDB(QString requestType) {
+    if(requestType == "All") {
+        QTableView *view_all = new QTableView();
+        view_all->setModel(modelDataBase);
+        emit sig_SendDataFromDB(view_all, requestAllFilms);
+    } else {
+        QTableView *view_CH = new QTableView();
+        view_CH->setModel(queryModel);
+        emit sig_SendDataFromDB(view_CH, requestAllFilms);
     }
 }
 

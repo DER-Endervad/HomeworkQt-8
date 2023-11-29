@@ -27,7 +27,6 @@ add_executable(08_PreDataBase
 	${PROJECT_SOURCES}
 )
 
-
 target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/PG_Libs)
 target_link_libraries(08_PreDataBase PRIVATE Qt6::Widgets
                                                 Qt6::Concurrent
