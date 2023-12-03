@@ -10,6 +10,7 @@ DataBase::DataBase(QObject *parent)
 
 DataBase::~DataBase()
 {
+    dataBase->close();
     delete dataBase;
 }
 
