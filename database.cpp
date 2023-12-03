@@ -11,6 +11,8 @@ DataBase::DataBase(QObject *parent)
 DataBase::~DataBase()
 {
     delete dataBase;
+    delete modelDataBase;
+    delete queryModel;
 }
 
 /*!
