@@ -11,8 +11,6 @@ DataBase::DataBase(QObject *parent)
 DataBase::~DataBase()
 {
     delete dataBase;
-    delete modelDataBase;
-    delete queryModel;
 }
 
 /*!
@@ -62,6 +60,8 @@ void DataBase::ClearWidget()
  */
 void DataBase::DisconnectFromDataBase(QString nameDb)
 {
+    delete modelDataBase;
+    delete queryModel;
     *dataBase = QSqlDatabase::database(nameDb);
     dataBase->close();
 }
